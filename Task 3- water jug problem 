@@ -1,0 +1,128 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyPALI3S1U25U2q9M/ZWAtFN",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/QuratulainAjaz/AI-LEARNING-/blob/main/Task%203-%20water%20jug%20problem%20\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 8,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "2mvKvb1v9WLI",
+        "outputId": "b2dc6948-72ec-4b79-bbc7-eac15ea7728e"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Enter size of Jug 1 (litres): 5\n",
+            "Enter size of Jug 2 (litres): 3\n",
+            "Enter target litres to measure: 4\n",
+            "\n",
+            "--- Regular Prompt Style ---\n",
+            "The solution is: Pour jug1 -> jug2 (final step)\n",
+            "\n",
+            "--- Chain-of-Thought Style ---\n",
+            "Step 1: Fill jug1 to 5 liters\n",
+            "Step 2: Pour jug1 -> jug2\n",
+            "Step 3: Empty jug2\n",
+            "Step 4: Pour jug1 -> jug2\n",
+            "Step 5: Fill jug1 to 5 liters\n",
+            "Step 6: Pour jug1 -> jug2\n",
+            "\n",
+            "--- Few-Shot Style ---\n",
+            "Pattern Example: Fill small jug, pour into large jug, repeat until target achieved\n",
+            "Applying pattern:\n",
+            "- Fill jug1 to 5 liters\n",
+            "- Pour jug1 -> jug2\n",
+            "- Empty jug2\n",
+            "- Pour jug1 -> jug2\n",
+            "- Fill jug1 to 5 liters\n",
+            "- Pour jug1 -> jug2\n"
+          ]
+        }
+      ],
+      "source": [
+        "from collections import deque\n",
+        "\n",
+        "def water_jug_solver(jug1, jug2, target):\n",
+        "    \"\"\"Simulate Water Jug Problem solver with step-by-step reasoning.\"\"\"\n",
+        "    visited = set()\n",
+        "    queue = deque()\n",
+        "    queue.append((0, 0, []))  # (jug1_amount, jug2_amount, steps)\n",
+        "\n",
+        "    while queue:\n",
+        "        a, b, steps = queue.popleft()\n",
+        "        if a == target or b == target:\n",
+        "            return steps\n",
+        "        if (a, b) in visited:\n",
+        "            continue\n",
+        "        visited.add((a, b))\n",
+        "\n",
+        "        # Possible moves\n",
+        "        moves = [\n",
+        "            (jug1, b, f\"Fill jug1 to {jug1} liters\"),\n",
+        "            (a, jug2, f\"Fill jug2 to {jug2} liters\"),\n",
+        "            (0, b, f\"Empty jug1\"),\n",
+        "            (a, 0, f\"Empty jug2\"),\n",
+        "            (min(jug1, a+b), max(0, a+b-jug1), f\"Pour jug2 -> jug1\"),\n",
+        "            (max(0, a+b-jug2), min(jug2, a+b), f\"Pour jug1 -> jug2\"),\n",
+        "        ]\n",
+        "        for new_a, new_b, step in moves:\n",
+        "            queue.append((new_a, new_b, steps + [step]))\n",
+        "    return [\"No solution found\"]\n",
+        "\n",
+        "# --- Input ---\n",
+        "jug1_size = int(input(\"Enter size of Jug 1 (litres): \"))\n",
+        "jug2_size = int(input(\"Enter size of Jug 2 (litres): \"))\n",
+        "target_litres = int(input(\"Enter target litres to measure: \"))\n",
+        "\n",
+        "# --- Solve ---\n",
+        "steps = water_jug_solver(jug1_size, jug2_size, target_litres)\n",
+        "\n",
+        "# --- Simulate Different Prompting Styles ---\n",
+        "print(\"\\n--- Regular Prompt Style ---\")\n",
+        "print(f\"The solution is: {steps[-1]} (final step)\")\n",
+        "\n",
+        "print(\"\\n--- Chain-of-Thought Style ---\")\n",
+        "for i, s in enumerate(steps, 1):\n",
+        "    print(f\"Step {i}: {s}\")\n",
+        "\n",
+        "print(\"\\n--- Few-Shot Style ---\")\n",
+        "example_steps = [\n",
+        "    \"Fill small jug, pour into large jug, repeat until target achieved\"\n",
+        "]\n",
+        "print(\"Pattern Example:\", example_steps[0])\n",
+        "print(\"Applying pattern:\")\n",
+        "for s in steps:\n",
+        "    print(\"-\", s)\n"
+      ]
+    }
+  ]
+}
